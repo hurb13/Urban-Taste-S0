@@ -1,0 +1,39 @@
+import tkinter, sqlite3
+
+
+class opm(tkinter.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.pack()
+        connection = sqlite3.connect("getraenke.db")
+        cursor = connection.cursor()
+        sql = "SELECT * FROM stoffe"
+        cursor.execute(sql)
+        list_load = cursor.fetchall()
+        self.lst = (list_load)
+        self.var = tkinter.StringVar()
+        self.var.set("")
+        self.op = tkinter.OptionMenu(self, self.var, *self.lst, command=self.handler)
+        self.op.pack()
+
+    def handler(self, text):
+        print(self.var.get())
+
+
+class scl(tkinter.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.pack()
+        self.sb = tkinter.Scale(self, width=20, length=200, orient="horizontal", from_=0, to=100, resolution=1,
+                                tickinterval=50)
+        self.sb.pack()
+
+
+root = tkinter.Tk()
+app = opm(root)
+app2 = opm(root)
+app3 = scl(root)
+
+
+
+app.mainloop()
