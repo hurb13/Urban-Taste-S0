@@ -1,0 +1,115 @@
+# Getränke-Datenbank
+
+import os,sys,sqlite3
+
+# Existenz feststellen
+if os.path.exists("getraenke.db"):
+    print("Datei bereits vorhanden")
+    sys.exit(0)
+
+# Verbindung zur Datenbank erzeugen
+connection = sqlite3.connect("getraenke.db")
+
+# Datensatzcursor erzeugen
+cursor = connection.cursor()
+
+# Tabelle erzeugen
+sql = "CREATE TABLE stoffe(" \
+      "ID INTEGER PRIMARY KEY," \
+      "name TEXT,"\
+      "vfaktor FLOAT)"
+cursor.execute(sql)
+
+# Datensatz erzeugen
+sql="INSERT INTO stoffe VALUES(NULL,'Cola',1)"
+cursor.execute(sql)
+connection.commit()
+
+connection.close()
+
+######################
+# Getränkeverwaltung #
+######################
+
+import tkinter, tkinter.scrolledtext, tkinter.messagebox
+import sqlite3, sys
+
+#Funktionen erstellen
+def ende():
+    main.destroy()
+
+def db_anz():
+    #t.delete(NULL, "end")
+    connection =sqlite3.connect("getraenke.db")
+    cursor = connection.cursor()
+    sql="SELECT * FROM stoffe"
+    cursor.execute(sql)
+    #Daten ausgeben
+    t.delete("0.0","end")
+    for dsatz in cursor:
+        t.insert("end", dsatz[0])
+        t.insert("end", "  ")
+        t.insert("end", dsatz[1])
+        t.insert("end", "\n")
+
+def ds_erzeugen():
+    connection = sqlite3.connect("getraenke.db")
+    cursor = connection.cursor()
+    g = str(tadd.get())
+    if g != "":
+        try:
+            sql = "SELECT * FROM stoffe WHERE name LIKE '" + g + "'"
+            cursor.execute(sql)
+            for dsatz in cursor:
+                if g == dsatz[1]:
+                    print("Datensatz bereits vorhanden!")
+                    sys.exit(0)
+            sql = "INSERT INTO stoffe VALUES(NULL,'" + str(g) + "',1)"
+            cursor.execute(sql)
+            connection.commit()
+            connection.close()
+        except:
+            print("Dat Jetränk gibbet schon!")
+    else:
+        print("Du musst schon was eingeben!")
+
+def ds_loeschen():
+    antwort = tkinter.messagebox.askyesno("Datensatz wirklich löschen?", "Datensatz wirklich löschen?")
+    if antwort == 1:
+        connection = sqlite3.connect("getraenke.db")
+        cursor = connection.cursor()
+        g = str(tadd.get())
+        try:
+            cursor.execute("DELETE FROM stoffe WHERE name = '"+str(g)+"'")
+            connection.commit()
+            connection.close()
+        except:
+            print("Please enter a name, which is not used yet!")
+    else:
+        print("Datensatz nicht gelöscht!")
+
+#def ok():
+
+
+# Unterfenster erstellen
+main = tkinter.Tk()
+
+# Buttons:
+# Datenbank bearbeiten/anzeogen
+t = tkinter.scrolledtext.ScrolledText(main, width=70, height=30)
+t.pack(side="bottom")
+tshow = tkinter.Button(main, text="DB anzeigen", command=db_anz)
+tshow.pack(side="left")
+badd = tkinter.Button(main, text="Datensatz erzeugen", command=ds_erzeugen)
+badd.pack(side="left")
+tadd = tkinter.Entry(main)
+tadd.pack(side="left")
+tdel = tkinter.Button(main,text="Datensatz löschen", command=ds_loeschen)
+tdel.pack(side="left")
+
+# Ende
+b = tkinter.Button(main,text="Abbrechen",command=ende)
+b.pack(side="left")
+
+#Endlosschleife
+main.mainloop()
